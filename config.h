@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
+static const char *backgroundImage = "/home/nissl/wallpaper.png";
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int marginpx  = 4;        /* marggin pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
