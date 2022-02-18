@@ -1024,8 +1024,6 @@ manage(Window w, XWindowAttributes *wa)
 	Window trans = None;
 	XWindowChanges wc;
 
-	dbgLog("window: %d", w);
-
 	c = ecalloc(1, sizeof(Client));
 	c->win = w;
 	/* geometry */
@@ -1059,9 +1057,6 @@ manage(Window w, XWindowAttributes *wa)
 
 	XConfigureWindow(dpy, w, CWBorderWidth, &wc);
 	XSetWindowBorder(dpy, w, scheme[SchemeNorm][ColBorder].pixel);
-
-	XSetWindowBackground(dpy, root, 0xff0000);
-	XClearWindow(dpy, root);
 
 	configure(c); /* propagates border_width, if size doesn't change */
 	updatewindowtype(c);
@@ -1590,6 +1585,11 @@ setup(void)
 
 	/* supporting window for NetWMCheck */
 	wmcheckwin = XCreateSimpleWindow(dpy, root, 0, 0, 1, 1, 0, 0, 0);
+
+	dbgLog("w: %d", root);
+	XSetWindowBackground(dpy, root, 0xff0000);
+	XClearWindow(dpy, root);
+
 	XChangeProperty(dpy, wmcheckwin, netatom[NetWMCheck], XA_WINDOW, 32,
 		PropModeReplace, (unsigned char *) &wmcheckwin, 1);
 	XChangeProperty(dpy, wmcheckwin, netatom[NetWMName], utf8string, 8,
