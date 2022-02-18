@@ -272,6 +272,7 @@ static Window root, wmcheckwin;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
+#include "log.h"
 
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
@@ -1023,6 +1024,8 @@ manage(Window w, XWindowAttributes *wa)
 	Window trans = None;
 	XWindowChanges wc;
 
+	dbgLog("window: %d", w);
+
 	c = ecalloc(1, sizeof(Client));
 	c->win = w;
 	/* geometry */
@@ -1053,8 +1056,13 @@ manage(Window w, XWindowAttributes *wa)
 	c->margin = marginpx;
 
 	wc.border_width = c->bw;
+
 	XConfigureWindow(dpy, w, CWBorderWidth, &wc);
 	XSetWindowBorder(dpy, w, scheme[SchemeNorm][ColBorder].pixel);
+
+	XSetWindowBackground(dpy, root, 0xff0000);
+	XClearWindow(dpy, root);
+
 	configure(c); /* propagates border_width, if size doesn't change */
 	updatewindowtype(c);
 	updatesizehints(c);
@@ -1579,6 +1587,7 @@ setup(void)
 	/* init bars */
 	updatebars();
 	updatestatus();
+
 	/* supporting window for NetWMCheck */
 	wmcheckwin = XCreateSimpleWindow(dpy, root, 0, 0, 1, 1, 0, 0, 0);
 	XChangeProperty(dpy, wmcheckwin, netatom[NetWMCheck], XA_WINDOW, 32,
@@ -1591,6 +1600,7 @@ setup(void)
 	XChangeProperty(dpy, root, netatom[NetSupported], XA_ATOM, 32,
 		PropModeReplace, (unsigned char *) netatom, NetLast);
 	XDeleteProperty(dpy, root, netatom[NetClientList]);
+
 	/* select events */
 	wa.cursor = cursor[CurNormal]->cursor;
 	wa.event_mask = SubstructureRedirectMask|SubstructureNotifyMask
@@ -2143,6 +2153,10 @@ main(int argc, char *argv[])
 		fputs("warning: no locale support\n", stderr);
 	if (!(dpy = XOpenDisplay(NULL)))
 		die("dwm: cannot open display");
+
+	if(setupDbgLog("/tmp/dwm.log"))
+		die("error initializing logger");
+
 	checkotherwm();
 	setup();
 #ifdef __OpenBSD__
@@ -2152,6 +2166,7 @@ main(int argc, char *argv[])
 	scan();
 	run();
 	cleanup();
+	closeDbgLog();
 	XCloseDisplay(dpy);
 	return EXIT_SUCCESS;
 }
